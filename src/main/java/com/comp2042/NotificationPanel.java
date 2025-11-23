@@ -1,3 +1,15 @@
+/**
+ * A temporary popup panel used to display score bonuses (e.g., "+40)
+ * when rows ar cleared in the game.
+ *
+ * The panel:
+ * - Shows a glowing score label
+ * - Moves upward slightly
+ * - Fades out
+ * - Removes itself from the parent node list after animation ends
+ *
+ * Refactored for COMP2042 to improve readability, documentation and structure.
+ */
 package com.comp2042;
 
 import javafx.animation.FadeTransition;
@@ -16,31 +28,54 @@ import javafx.util.Duration;
 
 public class NotificationPanel extends BorderPane {
 
+    /**
+     * Creates a notification panel with glowing score text
+     *
+     * @param text the text to display , usually a bonus like "+40"
+     */
+
     public NotificationPanel(String text) {
         setMinHeight(200);
         setMinWidth(220);
-        final Label score = new Label(text);
+
+        Label score = new Label(text);
         score.getStyleClass().add("bonusStyle");
-        final Effect glow = new Glow(0.6);
-        score.setEffect(glow);
         score.setTextFill(Color.WHITE);
+
+        Effect glow = new Glow(0.6);
+        score.setEffect(glow);
+
         setCenter(score);
 
     }
 
-    public void showScore(ObservableList<Node> list) {
-        FadeTransition ft = new FadeTransition(Duration.millis(2000), this);
-        TranslateTransition tt = new TranslateTransition(Duration.millis(2500), this);
-        tt.setToY(this.getLayoutY() - 40);
-        ft.setFromValue(1);
-        ft.setToValue(0);
-        ParallelTransition transition = new ParallelTransition(tt, ft);
-        transition.setOnFinished(new EventHandler<ActionEvent>() {
+    /**
+     * Plays upward movement + fade-out animation, then removes the panel.
+     *
+     * @param parentChildrenList the group of chilren to remove from once finished
+     */
+
+    public void showScore(ObservableList<Node> parentChildrenList) {
+
+        // Fade out over 2 seconds
+        FadeTransition fadeTransition= new FadeTransition(Duration.millis(2000), this);
+        fadeTransition.setFromValue(1);
+        fadeTransition.setToValue(0);
+
+        // Move upward over 2.5 seconds
+        TranslateTransition moveTransition = new TranslateTransition(Duration.millis(2500), this);
+        moveTransition.setToY(getLayoutY() - 40);
+
+        // Play both transitions together
+        ParallelTransition combinedTransition = new ParallelTransition(moveTransition, fadeTransition);
+
+        // Remove the panel from the parent after animation finishes
+        combinedTransition.setOnFinished(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                list.remove(NotificationPanel.this);
+                parentChildrenList.remove(NotificationPanel.this);
             }
         });
-        transition.play();
+        combinedTransition.play();
     }
 }
