@@ -3,7 +3,6 @@
  * next-brick preview and score display. It also listens to
  * keyboard input and forwards movement events to the game
  * controller via the InputEventListener.
- *
  * Refactored for COMP2042 to:
  * - Improve readability
  * -Reduce duplication in key handling and drawing
@@ -50,10 +49,14 @@ public class GuiController implements Initializable {
     @FXML
     private GameOverPanel gameOverPanel;
 
-    /** Background grid rectangles representing the placed bricks */
+    /**
+     * Background grid rectangles representing the placed bricks
+     */
     private Rectangle[][] displayMatrix;
 
-    /**Current falling brick rectangles*/
+    /**
+     * Current falling brick rectangles
+     */
     private Rectangle[][] rectangles;
 
     private InputEventListener eventListener;
@@ -143,7 +146,7 @@ public class GuiController implements Initializable {
      * movement timer.
      *
      * @param boardMatrix the current background matrix
-     * @param brick the initial brick view data
+     * @param brick       the initial brick view data
      */
 
 
@@ -166,7 +169,7 @@ public class GuiController implements Initializable {
                 Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
                 rectangle.setFill(Color.TRANSPARENT);
                 displayMatrix[i][j] = rectangle;
-                gamePanel.add(rectangle, j ,i-2);
+                gamePanel.add(rectangle, j, i - 2);
             }
         }
     }
@@ -176,7 +179,7 @@ public class GuiController implements Initializable {
      */
     private void initBrickPanel(ViewData brick) {
         int[][] brickData = brick.getBrickData();
-        rectangles =  new Rectangle[brickData.length][brickData[0].length];
+        rectangles = new Rectangle[brickData.length][brickData[0].length];
 
         for (int i = 0; i < brickData.length; i++) {
             for (int j = 0; j < brickData[i].length; j++) {
@@ -201,8 +204,8 @@ public class GuiController implements Initializable {
      * Sets up the game timer for automatic downward movement.
      */
     private void setupTimeLine() {
-        timeLine = new Timeline(new KeyFrame(Duration.millis(400), ae -> moveDown{new MoveEvent(EventType.DOWN, EventSource.THREAD))));
-        timeLine.setcycleCount(Timeline.INDEFINITE);
+        timeLine = new Timeline(new KeyFrame(Duration.millis(400), ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))));
+        timeLine.setCycleCount(Timeline.INDEFINITE);
         timeLine.play();
     }
 
@@ -217,7 +220,7 @@ public class GuiController implements Initializable {
             case 3:
                 return Color.DARKGREEN;
             case 4:
-                return  Color.YELLOW;
+                return Color.YELLOW;
             case 5:
                 return Color.RED;
             case 6:
@@ -230,105 +233,102 @@ public class GuiController implements Initializable {
         }
     }
 
-        /**
-         * Updates the brick panel position and colours according to the given ViewData.
-         */
+    /**
+     * Updates the brick panel position and colours according to the given ViewData.
+     */
 
 
-    private void refreshBrick(ViewData brick){
-            if (Boolean.TRUE.equals(isPause.getValue())) {
-                return;
-            }
-
-            positionBrickPanel(brick);
-
-            int[][] brickData = brick.getBrickData();
-            for (int i = 0; i < brickData.length; i++) {
-                for (int j = 0; j < brickData[i].length; j++) {
-                    setRectangleData(brickData[i][j], rectangles[i][j]);
-                }
-            }
+    private void refreshBrick(ViewData brick) {
+        if (Boolean.TRUE.equals(isPause.getValue())) {
+            return;
         }
 
-        /**
-         * Redraws the background grid using the given board matrix.
-         */
+        positionBrickPanel(brick);
 
-        public void refreshGameBackground(int[][] board){
-            for (int i = 2; i < board.length; i++) {
-                for (int j = 0; j < board[i].length; j++) {
-                    setRectangleData(board[i][j], displayMatrix[i][j]);
-                }
+        int[][] brickData = brick.getBrickData();
+        for (int i = 0; i < brickData.length; i++) {
+            for (int j = 0; j < brickData[i].length; j++) {
+                setRectangleData(brickData[i][j], rectangles[i][j]);
             }
         }
-
-        /**
-         * Applies colour and rounded corners to a rectangle
-         */
-        private void setRectangleData(int color, Rectangle rectangles) {
-            rectangles.setFill(getFillColor(color));
-            rectangles.setArcHeight(9);
-            rectangles.setArcWidth(9);
-        }
-
-        /**
-         * Handles a downward movement event (user or timer)
-         */
-
-        private void moveDown(MoveEvent event) {
-            if (!isInputEnabled()) {
-                gamePanel.requestFocus();
-                return;
-            }
-
-            if (isPause.getValue() == Boolean.FALSE) {
-                DownData downData = eventListener.onDownEvent(event);
-                if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
-                    NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
-                    groupNotification.getChildren().add(notificationPanel);
-                    notificationPanel.showScore(groupNotification.getChildren());
-                }
-
-                refreshBrick(downData.getViewData());
-                gamePanel.requestFocus();
-            }
-
-            public void setEventListener(InputEventListener eventListener) {
-                this.eventListener = eventListener;
-            }
-
-            public void bindScore(IntegerProperty integerProperty) {
-            }
-
-            public void gameOver() {
-                timeLine.stop();
-                gameOverPanel.setVisible(true);
-                isGameOver.setValue(Boolean.TRUE);
-            }
-
-            /**
-             * Starts a completely new game, resetting flags and restarting the timer.
-             */
-            public void newGame(ActionEvent actionEvent) {
-                timeLine.stop();
-                gameOverPanel.setVisible(false);
-
-                eventListener.createNewGame();
-
-                gamePanel.requestFocus();
-                timeLine.play();
-
-                isPause.setValue(Boolean.FALSE);
-                isGameOver.setValue(Boolean.FALSE);
-            }
-
-            public void pauseGame(ActionEvent actionEvent) {
-                gamePanel.requestFocus();
-            }
-
-
-
     }
+
+    /**
+     * Redraws the background grid using the given board matrix.
+     */
+
+    public void refreshGameBackground(int[][] board) {
+        for (int i = 2; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                setRectangleData(board[i][j], displayMatrix[i][j]);
+            }
+        }
+    }
+
+    /**
+     * Applies colour and rounded corners to a rectangle
+     */
+    private void setRectangleData(int color, Rectangle rectangles) {
+        rectangles.setFill(getFillColor(color));
+        rectangles.setArcHeight(9);
+        rectangles.setArcWidth(9);
+    }
+
+    /**
+     * Handles a downward movement event (user or timer)
+     */
+
+    private void moveDown(MoveEvent event) {
+        if (!isInputEnabled()) {
+            gamePanel.requestFocus();
+            return;
+        }
+
+        DownData downData = eventListener.onDownEvent(event);
+
+        if (downData.clearRow() != null && downData.clearRow().linesRemoved() > 0) {
+            NotificationPanel notificationPanel = new NotificationPanel("+" + downData.clearRow().scoreBonus());
+            groupNotification.getChildren().add(notificationPanel);
+            notificationPanel.showScore(groupNotification.getChildren());
+        }
+        refreshBrick(downData.viewData());
+        gamePanel.requestFocus();
+    }
+
+    public void setEventListener(InputEventListener eventListener) {
+        this.eventListener = eventListener;
+    }
+
+    public void bindScore(IntegerProperty integerProperty) {
+    }
+
+    public void gameOver() {
+        timeLine.stop();
+        gameOverPanel.setVisible(true);
+        isGameOver.setValue(Boolean.TRUE);
+    }
+
+    /**
+     * Starts a completely new game, resetting flags and restarting the timer.
+     */
+    public void newGame(ActionEvent actionEvent) {
+        timeLine.stop();
+        gameOverPanel.setVisible(false);
+        eventListener.createNewGame();
+
+        gamePanel.requestFocus();
+        timeLine.play();
+
+        isPause.setValue(Boolean.FALSE);
+        isGameOver.setValue(Boolean.FALSE);
+    }
+
+    public void pauseGame(ActionEvent actionEvent) {
+        gamePanel.requestFocus();
+    }
+
+}
+
 
 
 

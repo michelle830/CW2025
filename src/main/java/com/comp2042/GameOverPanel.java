@@ -1,7 +1,6 @@
 /**
  * Simple UI component displayed when the game is over
  * It shows a centered "GAME OVER" label styled vis CSS
- *
  * Refactored for COMP2042 to:
  * - Add documentation
  * - Improve readability

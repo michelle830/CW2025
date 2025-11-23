@@ -52,7 +52,7 @@ public final class MatrixOperations {
      *Checks if a matrix coordinate is out of bounds
      */
     private static boolean checkOutOfBound(int[][] matrix, int targetX, int targetY) {
-        return !(targetX >= 0 && targetY < matrix.length && targetX < matrix[targetY].length );
+        return !(targetX >= 0 && targetY < matrix.length && targetX < matrix[targetY].length);
     }
 
     /**
@@ -62,6 +62,7 @@ public final class MatrixOperations {
         int[][] copied = new int[original.length][];
         for (int i = 0; i < original.length; i++) {
             int[] row = original[i];
+            copied[i] = new int[row.length];
             System.arraycopy(row, 0, copied[i], 0, row.length);
         }
         return copied;
@@ -116,7 +117,7 @@ public final class MatrixOperations {
             if (fullRow) {
                 clearedRows.add(i);
             } else {
-                remainingRows.add(rows.clone());
+                remainingRows.add(row.clone());
             }
         }
         for (int i = matrix.length - 1; i >= 0; i--) {
@@ -132,5 +133,4 @@ public final class MatrixOperations {
     public static List<int[][]> deepCopyList(List<int[][]> list){
         return list.stream().map(MatrixOperations::copy).collect(Collectors.toList());
     }
-
 }

@@ -1,6 +1,5 @@
 /**
  * Handles rotation logic for the active falling brick.
- *
  * Refactored for COMP2042 to:
  * -Improve readability
  * -Add documentation
@@ -9,9 +8,7 @@
  */
 
 package com.comp2042;
-
 import com.comp2042.logic.bricks.Brick;
-
 public class BrickRotator {
 
     private Brick brick;
