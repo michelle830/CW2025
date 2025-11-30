@@ -23,4 +23,7 @@ public interface Board {
     Score getScore();
 
     void newGame();
+
+    /** New feature: allow holding/swapping the current brick */
+    void holdCurrentBrick();
 }

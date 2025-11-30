@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+
+<VBox spacing="10" alignment="TOP_CENTER"
+      style="-fx-background-color: #222; -fx-padding: 20;"
+      xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.comp2042.LeaderboardController">
+
+    <Label text="LEADERBOARD"
+           style="-fx-font-size: 24px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+    <VBox fx:id="scoreList" spacing="5"></VBox>
+
+    <Button text="Close"
+            style="-fx-background-color: $444; -fx-text-fill: white; -fx-padding: 8 20;"
+            onAction="#closeWindow"/>
+</VBox>

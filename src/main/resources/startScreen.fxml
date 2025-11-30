@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Pos?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.comp2042.StartController"
+           prefWidth="600"
+           prefHeight="800"
+           style="-fx-background-image: url('tetris.jpeg');
+                 -fx-background-size: cover;
+                 -fx-background-position: center;
+                 -fx-background-repeat: no-repeat;">
+
+    <Button text="Start game"
+            fx:id="startButton"
+            alignment="center"
+            style="-fx-font-size: 24px; -fx-background-color: #333; -fx-text-fill: white;"
+            onAction="#startGame"/>
+
+    <Button text="Instructions"
+            onAction="#showInstructions"
+            style="-fx-font-size: 20px;
+                   -fx-background-color: #444;
+                   -fx-text-fill:white;
+                   -fx-padding: 8 20;
+                   -fx-background-radius: 8;"/>
+
+
+</StackPane>

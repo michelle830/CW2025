@@ -1,6 +1,6 @@
 /**
  * Coordinates user input, board updates and game loop timing.
- * Refactored for COMP2042 to seperate responsibilities, reduce duplication
+ * Refactored for COMP2042 to separate responsibilities, reduce duplication
  * and improve clarity while preserving original gameplay behavior.
  */
 
@@ -25,6 +25,8 @@ public class GameController implements InputEventListener {
 
         boolean gameOverOnStart = board.createNewBrick();
 
+        guiController.setGameController(this);
+
         viewGuiController.setEventListener(this);
         viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
 
@@ -36,10 +38,15 @@ public class GameController implements InputEventListener {
         }
     }
 
+    public int getScore() {
+        return board.getScore().scoreProperty().get();
+    }
+
     @Override
     public DownData onDownEvent(MoveEvent event) {
         boolean moved = board.moveBrickDown();
         ClearRow clearRow = null;
+
         if (!moved) {
             // Merge brick into background
             board.mergeBrickToBackground();
@@ -94,6 +101,11 @@ public class GameController implements InputEventListener {
         return board.getViewData();
     }
 
+    @Override
+    public void onHoldEvent() {
+        board.holdCurrentBrick();
+    }
+
     /**
      * Resets board & score and redraws the starting background
      */
@@ -101,5 +113,19 @@ public class GameController implements InputEventListener {
     public void createNewGame() {
         board.newGame();
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
+    }
+
+    @Override
+    public ViewData onHardDropEvent() {
+        // fall until it cannot fall
+        while (board.moveBrickDown()) {
+            // keep falling
+        }
+
+        // once landed -> merge and spawn new brick
+        board.mergeBrickToBackground();
+        ClearRow clear = board.clearRows();
+
+        return board.getViewData();
     }
 }

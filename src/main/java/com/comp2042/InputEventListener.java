@@ -10,5 +10,10 @@ public interface InputEventListener {
 
     ViewData onRotateEvent(MoveEvent event);
 
+    /** New feature: called when user presses the Hold key (e.g. 'C') */
+    void onHoldEvent();
+
     void createNewGame();
+
+    ViewData onHardDropEvent();
 }

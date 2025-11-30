@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.layout.StackPane?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.comp2042.InstructionController"
+      style="-fx-background-color: rgba(0,0,0,0.85);">
+
+    <VBox alignment="CENTER" spacing="20">
+
+        <Label text="GAME INSTRUCTIONS"
+               style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+
+        <VBox alignment="CENTER" spacing="8">
+
+                <Label text="← / A ; Move Left"
+                       style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
+
+                <Label text="→ / D ; Move Right"
+                       style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
+
+                <Label text="→ / D ; Move Right"
+                       style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
+
+                <Label text="→ / D ; Move Right"
+                       style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
+
+                <Label text="→ / D ; Move Right"
+                       style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
+
+                <Label text="→ / D ; Move Right"
+                       style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
+
+                <Label text="→ / D ; Move Right"
+                       style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
+
+                <Label text="→ / D ; Move Right"
+                       style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
+    <Button text="Close"
+            style="-fx-font-size: 18px; -fx-background-color: #333; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 20 8 20;"
+            onAction="#closeWindow"/>
+</StackPane>
