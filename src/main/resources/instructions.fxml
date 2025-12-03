@@ -19,30 +19,34 @@
 
         <VBox alignment="CENTER" spacing="8">
 
-                <Label text="← / A ; Move Left"
+                <Label text="← / A : Move Left"
                        style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
 
-                <Label text="→ / D ; Move Right"
+                <Label text="→ / D : Move Right"
                        style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
 
-                <Label text="→ / D ; Move Right"
+                <Label text="↑ / W : Rotate"
                        style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
 
-                <Label text="→ / D ; Move Right"
+                <Label text="↓ / S : Soft Drop"
                        style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
 
-                <Label text="→ / D ; Move Right"
+                <Label text="Space : Hard Drop"
                        style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
 
-                <Label text="→ / D ; Move Right"
+                <Label text="C : Hold Brick"
                        style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
 
-                <Label text="→ / D ; Move Right"
+                <Label text="P : Pause"
                        style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
 
-                <Label text="→ / D ; Move Right"
+                <Label text="N : New Game"
                        style="-fx-font-size: 18px; -fx-text-fill: #DDDDDD;"/>
-    <Button text="Close"
-            style="-fx-font-size: 18px; -fx-background-color: #333; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 20 8 20;"
-            onAction="#closeWindow"/>
+        </VBox>
+
+        <Button text="Close"
+                style="-fx-font-size: 16px; -fx-background-color: #444; -fx-text-fill: white; -fx-background-radius: 8; -fx-padding: 8 20 8 20;"
+                onAction="#closeWindow"/>
+    </VBox>
+
 </StackPane>

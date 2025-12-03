@@ -16,6 +16,6 @@
     <VBox fx:id="scoreList" spacing="5"></VBox>
 
     <Button text="Close"
-            style="-fx-background-color: $444; -fx-text-fill: white; -fx-padding: 8 20;"
+            style="-fx-background-color: #444; -fx-text-fill: white; -fx-padding: 8 20;"
             onAction="#closeWindow"/>
 </VBox>

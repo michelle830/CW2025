@@ -3,17 +3,17 @@
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Rectangle?>
 <?import java.net.URL?>
-<Pane fx:controller="com.comp2042.GuiController"
+<StackPane fx:id="rootPane"
+      fx:controller="com.comp2042.GuiController"
       xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      style="-fx-background-image: url('tetris.jpeg');
-             -fx-background-size: cover;
-             -fx-background-position: center;
-             -fx-background-repeat: no-repeat;">
+      xmlns:fx="http://javafx.com/fxml">
 
-
-    <BorderPane fx:id="gameBoard" styleClass="gameBoard">
+    <BorderPane fx:id="gameBoard"
+                StackPane.alignment="CENTER"
+                prefWidth="900"  prefHeight="900"
+                style="-fx-border-color: white; -fx-border-width: 8; -fx-border-radius: 12; -fx-padding: 40; -fx-background-color:rgba(0,0,0,0.3);">
         <center>
             <StackPane fx:id="boardStack" 
                        styleClass="gameBoard"
@@ -22,6 +22,13 @@
                        maxWidth="300"
                        maxHeight="690"
                        style="-fx-background-color: transparent;">
+
+                <Rectangle width="305" height="690"
+                           fill="transparent"
+                           stroke="white"
+                           strokeWidth="4"
+                           arcWidth="12" arcHeight="12"/>
+
                 <GridPane fx:id="gamePanel"
                           hgap="0" vgap="0"
                           style="-fx-padding: 0; -fx-background-insets: 0;-fx-grid-lines-visible: false;"/>
@@ -29,6 +36,7 @@
                 <Pane fx:id="ghostPanel"
                           mouseTransparent="true"
                           StackPane.alignment="TOP_LEFT"/>
+
                 <Pane fx:id="brickPanel"
                           mouseTransparent="true"
                           StackPane.alignment="TOP_LEFT"/>
@@ -39,7 +47,8 @@
                            style="-fx-font-size: 48px; -fx-text-fill: white; -fx-font-weight: bold;"/>
                 </Group>
                 <!-- GAME OVER PANEL -->
-                <GameOverPanel fx:id="gameOverPanel" visible="false"/>
+                <GameOverPanel fx:id="gameOverPanel" visible="false"
+                               style="-fx-font-size: 72px; -fx-text-fill: #ff2b2b; -fx-font-weight: 900; -fx-effect: dropshadow(gaussian, black, 10 , 0.8,0 0"/>
             </StackPane>
         </center>
 
@@ -51,50 +60,94 @@
                            style="-fx-font-size: 20px; -fx-text-fill: white; -fx-font-weight: bold;"/>
 
                     <GridPane fx:id="holdPanel"
+                              alignment="CENTER"
                               hgap="2"
                               vgap="2"
-                              prefWidth="100"
-                              prefHeight="100"
+                              prefWidth="140"
+                              prefHeight="140"
+                              maxWidth="140"
+                              maxHeight="140"
+                              minWidth="140"
+                              minHeight="140"
                               style="-fx-background-color: rgba(0,0,0,0.3);
                                      -fx-border-color: white;
                                      -fx-padding: 10;"/>
+
+
+                    <Button fx:id="menuButton"
+                            text="Menu"
+                            onAction="#openMenu"
+                            style="-fx-font-size: 18px; -fx-background-color: #333; -fx-text-fill: white; -fx-min-width: 140"/>
+
+                    <Button fx:id="pauseButton"
+                            text="Pause"
+                            onAction="#pauseButtonClicked"
+                            style="-fx-font-size: 18px; -fx-background-color: #333; -fx-text-fill: white; -fx-min-width: 140;"/>
+
+                    <Label fx:id="scoreLabel"
+                           text="Score: 0"
+                           style="-fx-font-size: 18px; -fx-text-fill: white;"/>
+
+                    <Label fx:id="timerLabel"
+                           text="Time: 0"
+                           style="-fx-font-size: 18px; -fx-text-fill: yellow;"/>
+
+                    <Button fx:id="leaderboardButton"
+                            text="Leaderboard"
+                            onAction="#openLeaderboard"
+                            style="-fx-font-size: 18px; -fx-background-color: #444; -fx-text-fill: white; -fx-min-width: 140"/>
                 </VBox>
 
-            <VBox spacing="10" alignment="TOP_CENTER">
-                <Label text="NEXT"
-                       style="-fx-font-size: 20px; -fx-text-fill: white;-fx-font-weight: bold;"/>
-              
-                <GridPane fx:id="nextPanel"
-                          hgap="2"
-                          vgap="2"
-                          prefWidth="100"
-                          prefHeight="100"
-                          style="-fx-background-color:rgba(0,0,0,0.3);
+                <VBox spacing="10" alignment="TOP_CENTER">
+
+                    <Label text="NEXT"
+                           style="-fx-font-size: 20px; -fx-text-fill: white;-fx-font-weight: bold;"/>
+
+                    <GridPane fx:id="nextPanel"
+                              alignment="CENTER"
+                              hgap="2"
+                              vgap="2"
+                              prefWidth="140"
+                              prefHeight="140"
+                              maxWidth="140"
+                              maxHeight="140"
+                              minWidth="140"
+                              minHeight="140"
+                              style="-fx-background-color:rgba(0,0,0,0.3);
                                  -fx-border-color: white;
                                  -fx-padding: 10;"/>
-            </VBox>
+                </VBox>
 
            </HBox>
 
         </right>
        
     </BorderPane>
-    <!-- Buttons -->
-    <Button fx:id="pauseButton"
-            text="Pause"
-            layoutX="320" layoutY="30"
-            onAction="#pauseButtonClicked"/>
-    <Button fx:id="exitButton"
-            text="Exit"
-            layoutX="320" layoutY="70"
-            onAction="#exitButtonClicked"/>
-    <Button fx:id="restartButton"
-            text="Restart"
-            layoutX="320" layoutY="110"
-            onAction="#restartButtonClicked"/>
+
     <!-- NOTIFICATION GROUP -->
     <Group fx:id="groupNotification" layoutX="50" layoutY="100"/>
-    <stylesheets>
-        <URL value="@window_style.css"/>
-    </stylesheets>
-</Pane>
+
+    <Group fx:id="menuOverlay" visible="false" layoutX="70" layoutY="150">
+
+        <VBox spacing="15" alignment="CENTER"
+              prefWidth="260" prefHeight="320"
+              style="-fx-background-color: rgba(0,0,0,0.85); -fx-padding: 20; -fx-background-radius: 12;">
+
+            <Label text="MENU"
+                   style="-fx-font-size: 28px; -fx-text-fill: white; -fx-font-weight: bold"/>
+
+            <Button text="Resume" onAction="#menuResume"
+                    style="-fx-font-size: 18px; -fx-min-width: 160;"/>
+
+            <Button text="Restart" onAction="#restartButtonClicked"
+                    style="-fx-font-size: 18px; -fx-min-width: 160;"/>
+
+            <Button text="Back to Home" onAction="#menuHome"
+                    style="-fx-font-size: 18px; -fx-min-width: 160;"/>
+
+            <Button text="Exit" onAction="#exitButtonClicked"
+                    style="-fx-font-size: 18px; -fx-min-width: 160;"/>
+
+        </VBox>
+    </Group>
+</StackPane>

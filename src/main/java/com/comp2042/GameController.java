@@ -1,37 +1,42 @@
-/**
- * Coordinates user input, board updates and game loop timing.
- * Refactored for COMP2042 to separate responsibilities, reduce duplication
- * and improve clarity while preserving original gameplay behavior.
- */
-
 package com.comp2042;
+
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.util.Duration;
 
 public class GameController implements InputEventListener {
 
-    /** Core game logic (board state, movement, collision, score) */
     private final Board board;
-
-    /** UI controller responsible for drawing the board and receiving user input */
     private final GuiController viewGuiController;
+    private IntegerProperty timeRemaining = new SimpleIntegerProperty(-1);
+    private boolean gameEnded = false;
+    private Timeline countdown;
+    private String leaderboardFile;
 
-    /**
-     * Constructor that sets up a new game session.
-     *
-     * @param guiController The JavaFX controller responsible
-     */
     public GameController(GuiController guiController) {
+        this(guiController, -1);
+        leaderboardFile = "normal";
+    }
+
+    public GameController(GuiController guiController, int timeLimitSeconds) {
         this.viewGuiController = guiController;
-        this.board = new SimpleBoard(10,25);
+        this.board = new SimpleBoard(10, 25);
+        this.timeRemaining.set(timeLimitSeconds);
 
         boolean gameOverOnStart = board.createNewBrick();
 
         guiController.setGameController(this);
+        guiController.setEventListener(this);
+        guiController.initGameView(board.getBoardMatrix(), board.getViewData());
 
-        viewGuiController.setEventListener(this);
-        viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
-
-        // Bind score property directly to GUI label
-        viewGuiController.bindScore(board.getScore().scoreProperty());
+        if (timeLimitSeconds > 0) {
+            leaderboardFile = "time_" + timeLimitSeconds;
+            guiController.bindTime(timeRemaining);
+            guiController.enableTimerDisplay();
+            startCountdown();
+        }
 
         if (gameOverOnStart) {
             viewGuiController.gameOver();
@@ -42,59 +47,68 @@ public class GameController implements InputEventListener {
         return board.getScore().scoreProperty().get();
     }
 
+    private void startCountdown() {
+        countdown = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+            if (gameEnded) return;
+
+            int timeRemainingSeconds = timeRemaining.get();
+
+            if (timeRemainingSeconds <= 1) {
+                timeRemaining.set(0);
+                gameEnded = true;
+                viewGuiController.gameOver();
+                return;
+            }
+
+            timeRemaining.set(timeRemainingSeconds - 1);
+        }));
+
+        countdown.setCycleCount(Timeline.INDEFINITE);
+        countdown.play();
+    }
+
     @Override
     public DownData onDownEvent(MoveEvent event) {
         boolean moved = board.moveBrickDown();
         ClearRow clearRow = null;
 
         if (!moved) {
-            // Merge brick into background
             board.mergeBrickToBackground();
-
-            // Clear rows (if any)
             clearRow = board.clearRows();
 
-            // Add score for line clears
             if (clearRow.linesRemoved() > 0) {
                 board.getScore().add(clearRow.scoreBonus());
+                viewGuiController.updateScore(board.getScore().scoreProperty().get());
             }
 
-            // Try spawning next brick -> if fails,game over
             boolean gameOver = board.createNewBrick();
-            if (gameOver) {
+            if (gameOver && !gameEnded) {
+                gameEnded = true;
                 viewGuiController.gameOver();
             }
 
-            // Redraw background grid after merge
             viewGuiController.refreshGameBackground(board.getBoardMatrix());
         } else {
-            // Reward manual down movement (soft drop)
             if (event.getEventSource() == EventSource.USER) {
                 board.getScore().add(1);
+                viewGuiController.updateScore(board.getScore().scoreProperty().get());
             }
         }
         return new DownData(clearRow, board.getViewData());
     }
 
-    /**
-     * Move the current brick left
-     */
     @Override
     public ViewData onLeftEvent(MoveEvent event) {
         board.moveBrickLeft();
         return board.getViewData();
     }
-    /**
-     * Move the current brick right
-     */
+
     @Override
     public ViewData onRightEvent(MoveEvent event) {
         board.moveBrickRight();
         return board.getViewData();
     }
-    /**
-     * Rotate the active brick
-     */
+
     @Override
     public ViewData onRotateEvent(MoveEvent event) {
         board.rotateLeftBrick();
@@ -106,26 +120,38 @@ public class GameController implements InputEventListener {
         board.holdCurrentBrick();
     }
 
-    /**
-     * Resets board & score and redraws the starting background
-     */
     @Override
     public void createNewGame() {
         board.newGame();
+        gameEnded = false;
         viewGuiController.refreshGameBackground(board.getBoardMatrix());
     }
 
     @Override
     public ViewData onHardDropEvent() {
-        // fall until it cannot fall
         while (board.moveBrickDown()) {
-            // keep falling
         }
 
-        // once landed -> merge and spawn new brick
         board.mergeBrickToBackground();
         ClearRow clear = board.clearRows();
 
+        if (clear.linesRemoved() > 0) {
+            board.getScore().add(clear.scoreBonus());
+            viewGuiController.updateScore(board.getScore().scoreProperty().get());
+        }
+
+        boolean gameOver = board.createNewBrick();
+        if (gameOver && !gameEnded) {
+            gameEnded = true;
+            viewGuiController.gameOver();
+        }
+
+        viewGuiController.refreshGameBackground(board.getBoardMatrix());
+
         return board.getViewData();
+    }
+
+    public String getLeaderboardFile() {
+        return leaderboardFile;
     }
 }

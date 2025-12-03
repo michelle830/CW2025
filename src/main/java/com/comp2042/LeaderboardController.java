@@ -13,8 +13,17 @@ public class LeaderboardController {
     private VBox scoreList;
 
     @FXML
-    private void initialize() {
-        List<String> scores = LeaderboardManager.loadScores();
+    private void closeWindow() {
+        Stage stage = (Stage) scoreList.getScene().getWindow();
+        stage.close();
+    }
+
+    public void loadLeaderboard(String mode) {
+        String filename = mode + ".txt";
+
+        List<String> scores = LeaderboardManager.loadScores(filename);
+
+        scoreList.getChildren().clear();
 
         if (scores.isEmpty()) {
             scoreList.getChildren().add(new Label("No scores yet!"));
@@ -33,11 +42,5 @@ public class LeaderboardController {
 
             rank++;
         }
-    }
-
-    @FXML
-    private void closeWindow() {
-        Stage stage = (Stage) scoreList.getScene().getWindow();
-        stage.close();
     }
 }

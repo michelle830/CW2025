@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.geometry.Pos?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.comp2042.TimeSelectController"
+      alignment="CENTER"
+      spacing="25"
+      style="-fx-background-image: url('tetris.jpeg'); -fx-background-size: cover; -fx-background-position: center; -fx-background-repeat: no-repeat;"
+      prefWidth="600" prefHeight="800">
+
+    <Button text="1 Minute"
+            onAction="#start1min"
+            style="-fx-font-size: 26px; -fx-background-color: #333; -fx-text-fill: white;"/>
+
+    <Button text="2 Minutes"
+            onAction="#start2min"
+            style="-fx-font-size: 26px; -fx-background-color: #333; -fx-text-fill: white;"/>
+
+    <Button text="3 Minutes"
+            onAction="#start3min"
+            style="-fx-font-size: 26px; -fx-background-color: #333; -fx-text-fill: white;"/>
+
+</VBox>
