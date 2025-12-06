@@ -5,6 +5,9 @@ import com.comp2042.MatrixOperations;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * T-shaped Tetromino brick.
+ */
 final class TBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();

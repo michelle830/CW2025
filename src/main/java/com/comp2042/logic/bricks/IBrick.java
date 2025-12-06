@@ -1,10 +1,16 @@
 package com.comp2042.logic.bricks;
 
 import com.comp2042.MatrixOperations;
+
 import java.util.ArrayList;
 import java.util.List;
 
-final class IBrick implements Brick {
+/**
+ * I-shaped Tetromino brick.
+ * <p>
+ * Provides two rotation states: horizontal and vertical.
+ */
+public final class IBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 

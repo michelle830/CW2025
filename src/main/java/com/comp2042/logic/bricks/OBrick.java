@@ -5,6 +5,11 @@ import com.comp2042.MatrixOperations;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * O-shaped (square) Tetromino brick.
+ * <p>
+ * Has only one rotation state because rotation does not change its shape.
+ */
 final class OBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();

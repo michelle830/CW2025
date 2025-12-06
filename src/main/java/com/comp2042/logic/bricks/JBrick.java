@@ -5,11 +5,15 @@ import com.comp2042.MatrixOperations;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * J-shaped Tetromino brick.
+ */
+
 final class JBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 
-    public JBrick() {
+   public JBrick() {
         brickMatrix.add(new int[][]{
                 {0, 0, 0, 0},
                 {2, 2, 2, 0},
