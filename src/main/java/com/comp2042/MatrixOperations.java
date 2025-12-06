@@ -7,40 +7,41 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Utility class that provides core matrix operations for the Tetris game.
+ * Utility class providing all core matrix operations used in the Tetris game.
  *
- * Includes:
- * - Collision detection (intersect)
- * - Board copying
- * - Brick merging into the board
- * - Row clearing logic
- * - Deep copying of brick rotation matrices
+ * <p>This class supports:</p>
+ * <ul>
+ *     <li>Collision detection</li>
+ *     <li>Board copying</li>
+ *     <li>Brick merging</li>
+ *     <li>Row clearing</li>
+ *     <li>Deep copying of brick rotation matrices</li>
+ * </ul>
  *
- * Refactored for COMP2042 to improve documentation and readability.
+ * <p>This class is stateless and cannot be instantiated.</p>
  */
 public final class MatrixOperations {
 
-
-    //We don't want to instantiate this utility class
+    /** Prevent instantiation of this utility class */
     private MatrixOperations(){
     }
 
     /**
-     * Determine if a brick(shape matrix) will collide with existing board cells.
+     * Checks whether a brick collides with the board at a given position.
      *
-     * @param matrix board matrix
-     * @param brick shape matrix of the brick
-     * @param x top left X position on the board
-     * @param y top left Y position on the board
-     * @return true if collision occurs, false if safe
+     * @param matrix Board matrix
+     * @param brick  Brick shape matrix
+     * @param x      X position on board
+     * @param y      Y position on board
+     * @return true if collision occurs, false otherwise
      */
-
     public static boolean intersect(final int[][] matrix, final int[][] brick, int x, int y) {
         for (int i = 0; i < brick.length; i++) {
             for (int j = 0; j < brick[i].length; j++) {
                 int targetX = x + i;
                 int targetY = y + j;
-                if (brick[j][i] != 0 && (checkOutOfBound(matrix, targetX, targetY) || matrix[targetY][targetX] != 0)) {
+
+                if (brick[j][i] != 0 && (isOutOfBounds(matrix, targetX, targetY) || matrix[targetY][targetX] != 0)) {
                     return true;
                 }
             }
@@ -49,14 +50,17 @@ public final class MatrixOperations {
     }
 
     /**
-     *Checks if a matrix coordinate is out of bounds
+     *Checks whether a given coordinate is outside the board
      */
-    private static boolean checkOutOfBound(int[][] matrix, int targetX, int targetY) {
+    private static boolean isOutOfBounds(int[][] matrix, int targetX, int targetY) {
         return !(targetX >= 0 && targetY < matrix.length && targetX < matrix[targetY].length);
     }
 
     /**
-     * Returns a deep copy of a 2D matrix.
+     * Creates a deep copy of a 2D matrix.
+     *
+     * @param original Original matrix
+     * @return Deep copied matrix
      */
     public static int[][] copy(int[][] original) {
         int[][] copied = new int[original.length][];
@@ -71,14 +75,15 @@ public final class MatrixOperations {
     /**
      * Merges a brick into the board matrix at the given position
      *
-     * @param filledFields existing board matrix
-     * @param brick shape matrix of brick
-     * @param x X coordinate
-     * @param y Y coordinate
-     * @return new board matrix with brick merged
+     * @param filledFields Existing board matrix
+     * @param brick        Brick shape matrix
+     * @param x            X position
+     * @param y            Y position
+     * @return New merged board matrix
      */
     public static int[][] merge(int[][] filledFields, int[][] brick, int x, int y) {
         int[][] copy = copy(filledFields);
+
         for (int i = 0; i < brick.length; i++) {
             for (int j = 0; j < brick[i].length; j++) {
                 int targetX = x + i;
@@ -92,11 +97,10 @@ public final class MatrixOperations {
     }
 
     /**
-     * Checks the board  for full rows, removes them,shifts remaining rows down,
-     * and calculates score bonys
+     * Removes completed rows from the board and calculates score bonus.
      *
-     * @param matrix board matrix
-     * @return ClearRow object containing number of cleared rows, new matrix, and score bonus
+     * @param matrix Board matrix
+     * @return ClearRow result containing removed lines and new board state
      */
     public static ClearRow checkRemoving(final int[][] matrix) {
         int[][] newMatrix = new int[matrix.length][matrix[0].length];
@@ -105,31 +109,45 @@ public final class MatrixOperations {
 
         for (int i = 0; i < matrix.length; i++) {
             int[] row = matrix[i];
-            boolean fullRow = true;
 
-            for (int value : row) {
-                if (value == 0) {
-                    fullRow = false;
-                    break;
-                }
-            }
-
-            if (fullRow) {
+            if (isRowFull(row)) {
                 clearedRows.add(i);
             } else {
                 remainingRows.add(row.clone());
             }
         }
+
+        // Fill from bottom with remaining rows
         for (int i = matrix.length - 1; i >= 0; i--) {
             int[] row = remainingRows.pollLast();
             if (row != null) {
                 newMatrix[i] = row;
             }
         }
-        int scoreBonus = 50 * clearedRows.size() * clearedRows.size();
-        return new ClearRow(clearedRows.size(), newMatrix, scoreBonus);
+
+        int linesCleared = clearedRows.size();
+        int scoreBonus = 50 * linesCleared * linesCleared;
+        return new ClearRow(linesCleared, newMatrix, scoreBonus);
     }
 
+    /**
+     * Determines if a row is completely filled.
+     */
+    private static boolean isRowFull(int[] row) {
+        for (int value : row) {
+            if (value == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Creates a deep copy of a list of matrices
+     *
+     * @param list List of matrices
+     * @return Deep copied list
+     */
     public static List<int[][]> deepCopyList(List<int[][]> list){
         return list.stream().map(MatrixOperations::copy).collect(Collectors.toList());
     }
