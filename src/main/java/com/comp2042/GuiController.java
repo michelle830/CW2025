@@ -7,7 +7,6 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -33,9 +32,25 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Main JavaFX controller for the Tetris game screen.
+ * <p>
+ * Responsibilities:
+ * <ul>
+ *     <li>Handles keyboard input and forwards events to {@link GuiController} via {@link InputEventListener}.</li>
+ *     <li>Renders the board background, active brick, ghost piece, hold brick and next preview.</li>
+ *     <li>Manages pause/resume, in-game menu overlay and timer label.</li>
+ *     <li>Displays game over-panel and opens the leaderboard window.</li>
+ * </ul>
+ * <p>
+ * This controller is wired to {@code gameLayout.fxml}.
+ */
 public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 30;
+    private static final double GHOST_ALPHA = 0.3;
+
+    // FXML-Injected nodes
 
     @FXML
     private GridPane gamePanel;
@@ -82,6 +97,7 @@ public class GuiController implements Initializable {
     @FXML
     private Label timerLabel;
 
+    // State Fields
     private Rectangle[][] displayMatrix;
     private InputEventListener eventListener;
     private Timeline timeLine;
@@ -89,6 +105,25 @@ public class GuiController implements Initializable {
     private final BooleanProperty isPause = new SimpleBooleanProperty();
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
     private ActionEvent event;
+
+    // FXML Event Handlers
+
+    @FXML
+    public void pauseButtonClicked(ActionEvent actionEvent) {
+        togglePause();
+    }
+
+    @FXML
+    private void exitButtonClicked() {
+        System.exit(0);
+    }
+
+    @FXML
+    private void restartButtonClicked() {
+        newGame(event);
+    }
+
+// Initialisation
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -113,13 +148,21 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Applies the currently selected {@link Theme} to the root game pane
+     * and ensures the board remains transparent.
+     *
+     * @param theme theme to apply
+     */
     public void applyTheme(Theme theme) {
         String style;
 
         if (theme.getType() == Theme.Type.COLOR) {
             style = "-fx-background-color: " + theme.getValue() + ";";
         } else {
-            style = "-fx-background-image: url('" + theme.getValue() + "');" + "-fx-background-size: cover;" + "-fx-background-position:center;";
+            style = "-fx-background-image: url('" + theme.getValue() + "');"
+                    + "-fx-background-size: cover;"
+                    + "-fx-background-position:center;";
         }
 
         if (rootPane != null) {
@@ -133,109 +176,106 @@ public class GuiController implements Initializable {
         Platform.runLater(() -> gamePanel.requestFocus());
     }
 
-    @FXML
-    public void pauseButtonClicked(ActionEvent actionEvent) {
-        togglePause();
-    }
-
-    @FXML
-    private void exitButtonClicked() {
-        System.exit(0);
-    }
-
-    @FXML
-    private void restartButtonClicked() {
-        newGame(event);
-    }
-
+    /**
+     * Sets up keyboard focus and registers the key handler on the game panel.
+     */
     private void setupKeyboardHandling() {
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
-
-        gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                if (!isInputEnabled()) {
-                    if (keyEvent.getCode() == KeyCode.N) {
-                        newGame(null);
-                    }
-                    if (keyEvent.getCode() == KeyCode.R) {
-                        togglePause();
-                    }
-                    return;
-                }
-
-                KeyCode code = keyEvent.getCode();
-
-                switch (code) {
-                    case LEFT:
-                    case A:
-                        refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
-                        keyEvent.consume();
-                        break;
-
-                    case RIGHT:
-                    case D:
-                        refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
-                        keyEvent.consume();
-                        break;
-
-                    case UP:
-                    case W:
-                        refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
-                        keyEvent.consume();
-                        break;
-
-                    case DOWN:
-                    case S:
-                        moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
-                        keyEvent.consume();
-                        break;
-
-                    case N:
-                        newGame(null);
-                        break;
-
-                    case P:
-                        togglePause();
-                        keyEvent.consume();
-                        break;
-
-                    case R:
-                        if (isPause.get()) {
-                            togglePause();
-                        } else {
-                            newGame(null);
-                        }
-                        keyEvent.consume();
-                        break;
-
-                    case M:
-                        openMenu();
-                        keyEvent.consume();
-                        break;
-
-                    case C:
-                        if (eventListener != null) {
-                            eventListener.onHoldEvent();
-                            refreshBrick(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).viewData());
-                        }
-                        keyEvent.consume();
-                        break;
-
-                    case SPACE:
-                        if (eventListener != null) {
-                            refreshBrick(eventListener.onHardDropEvent());
-                        }
-                        keyEvent.consume();
-                        break;
-
-                    default:
-                        break;
-                }
-            }
-        });
+        gamePanel.setOnKeyPressed(this::handleKeyPressed);
     }
+
+    // Keyboard input handling
+
+    /**
+     * Central keyboard handling method; translates key presses into
+     * {@link MoveEvent}s and other high-level actions (pause, menu, hold, etc.).
+     *
+     * @param keyEvent the JavaFX key event
+     */
+    private void handleKeyPressed(KeyEvent keyEvent) {
+        if (!isInputEnabled()) {
+            if (keyEvent.getCode() == KeyCode.N) {
+                newGame(null);
+            }
+            if (keyEvent.getCode() == KeyCode.R) {
+                togglePause();
+            }
+            return;
+        }
+
+        KeyCode code = keyEvent.getCode();
+
+        switch (code) {
+            case LEFT:
+            case A:
+                refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
+                keyEvent.consume();
+                break;
+
+            case RIGHT:
+            case D:
+                refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
+                keyEvent.consume();
+                break;
+
+            case UP:
+            case W:
+                refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
+                keyEvent.consume();
+                break;
+
+            case DOWN:
+            case S:
+                moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
+                keyEvent.consume();
+                break;
+
+            case N:
+                newGame(null);
+                keyEvent.consume();
+                break;
+
+            case P:
+                togglePause();
+                keyEvent.consume();
+                break;
+
+            case R:
+                if (isPause.get()) {
+                    togglePause();
+                } else {
+                    newGame(null);
+                }
+                keyEvent.consume();
+                break;
+
+            case M:
+                openMenu();
+                keyEvent.consume();
+                break;
+
+            case C:
+                if (eventListener != null) {
+                    eventListener.onHoldEvent();
+                    refreshBrick(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).viewData());
+                }
+                keyEvent.consume();
+                break;
+
+            case SPACE:
+                if (eventListener != null) {
+                    refreshBrick(eventListener.onHardDropEvent());
+                }
+                keyEvent.consume();
+                break;
+
+            default:
+                break;
+        }
+    }
+
+    // Pause / Input State
 
     private void togglePause() {
         boolean nowPaused = !isPause.get();
@@ -270,6 +310,14 @@ public class GuiController implements Initializable {
         return !isPause.get() && !isGameOver.get();
     }
 
+    // Initial Game View Setup
+
+    /**
+     * Initialises the board drawing and starts the automatic game loop timeline.
+     *
+     * @param boardMatrix initial background board matrix
+     * @param brick       initial {@link ViewData} for the falling brick
+     */
     public void initGameView(int[][] boardMatrix, ViewData brick) {
         initBackgroundGrid(boardMatrix);
         refreshBrick(brick);
@@ -299,6 +347,8 @@ public class GuiController implements Initializable {
         timeLine.play();
     }
 
+    // Colour helpers
+
     private Paint getFillColor(int i) {
         switch (i) {
             case 0:
@@ -323,14 +373,39 @@ public class GuiController implements Initializable {
     }
 
     private Paint getGhostFill(int value) {
-        return value == 0 ? Color.TRANSPARENT : Color.rgb(200, 200, 200, 0.3);
+        return value == 0 ? Color.TRANSPARENT : Color.rgb(200, 200, 200, GHOST_ALPHA);
     }
 
+    // Main Render Pipeline
+
+    /**
+     * Main UI refresh for the active brick,ghost, hold and next preview.
+     * <p>
+     * If the game is paused, this method does nothing
+     *
+     * @param brick {@link ViewData} describing current game state
+     */
     private void refreshBrick(ViewData brick) {
         if (isPause.get()) {
             return;
         }
 
+        drawActiveBrick(brick);
+        drawGhostBrick(brick);
+        refreshHoldPiece(brick.getHoldShape());
+        refreshNextPiece(brick.getNextBrickData());
+
+        if (scoreLabel != null && gameController != null) {
+            scoreLabel.setText("Score: " + gameController.getScore());
+        }
+    }
+
+    /**
+     * Draws the currently falling brick at its active position.
+     *
+     * @param brick view data for the active brick
+     */
+    public void drawActiveBrick(ViewData brick) {
         brickPanel.getChildren().clear();
 
         int[][] brickData = brick.getBrickData();
@@ -351,42 +426,45 @@ public class GuiController implements Initializable {
         double paddingOffset = 5;
         brickPanel.setTranslateX(brick.getxPosition() * BRICK_SIZE + paddingOffset);
         brickPanel.setTranslateY((brick.getyPosition() - 2) * BRICK_SIZE);
+    }
 
+    private void drawGhostBrick(ViewData brick) {
         int[][] ghostData = brick.getGhostData();
         ghostPanel.getChildren().clear();
 
-        if (ghostData != null) {
-            for (int r = 0; r < ghostData.length; r++) {
-                for (int c = 0; c < ghostData[r].length; c++) {
-                    if (ghostData[r][c] == 0) continue;
+        if (ghostData == null) {
+            return;
+        }
 
-                    Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
-                    rectangle.setFill(getGhostFill(ghostData[r][c]));
-                    rectangle.setArcHeight(9);
-                    rectangle.setArcWidth(9);
-                    rectangle.setStroke(Color.rgb(50, 50, 50, 0.7));
-                    rectangle.setStrokeWidth(1.2);
-                    rectangle.setStrokeType(javafx.scene.shape.StrokeType.INSIDE);
+        for (int r = 0; r < ghostData.length; r++) {
+            for (int c = 0; c < ghostData[r].length; c++) {
+                if (ghostData[r][c] == 0) continue;
 
-                    rectangle.setLayoutX(c * BRICK_SIZE);
-                    rectangle.setLayoutY(r * BRICK_SIZE);
+                Rectangle rectangle = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                rectangle.setFill(getGhostFill(ghostData[r][c]));
+                rectangle.setArcHeight(9);
+                rectangle.setArcWidth(9);
+                rectangle.setStroke(Color.rgb(50, 50, 50, 0.7));
+                rectangle.setStrokeWidth(1.2);
+                rectangle.setStrokeType(StrokeType.INSIDE);
 
-                    ghostPanel.getChildren().add(rectangle);
-                }
+                rectangle.setLayoutX(c * BRICK_SIZE);
+                rectangle.setLayoutY(r * BRICK_SIZE);
+
+                ghostPanel.getChildren().add(rectangle);
             }
-
-            ghostPanel.setTranslateX(brick.getghostX() * BRICK_SIZE + paddingOffset);
-            ghostPanel.setTranslateY((brick.getghostY() - 2) * BRICK_SIZE);
         }
 
-        refreshHoldPiece(brick.getHoldShape());
-        refreshNextPiece(brick.getNextBrickData());
-
-        if (scoreLabel != null && gameController != null) {
-            scoreLabel.setText("Score: " + gameController.getScore());
-        }
+        double paddingOffset = 5;
+        ghostPanel.setTranslateX(brick.getghostX() * BRICK_SIZE + paddingOffset);
+        ghostPanel.setTranslateY((brick.getghostY() - 2) * BRICK_SIZE);
     }
 
+    /**
+     * Refreshes the static background board based on the matrix contents.
+     *
+     * @param board board matrix
+     */
     public void refreshGameBackground(int[][] board) {
         for (int i = 2; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -470,8 +548,10 @@ public class GuiController implements Initializable {
         rectangle.setArcWidth(9);
         rectangle.setStroke(Color.rgb(50, 50, 50, 0.7));
         rectangle.setStrokeWidth(1.2);
-        rectangle.setStrokeType(javafx.scene.shape.StrokeType.INSIDE);
+        rectangle.setStrokeType(StrokeType.INSIDE);
     }
+
+    // Fall / Notification Pipeline
 
     private void moveDown(MoveEvent event) {
         if (!isInputEnabled()) {
@@ -490,16 +570,36 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 
+    // Public API used by GameController
+
+    /**
+     * Registers the . {@link InputEventListener} which receives translated
+     * key events (move, rotate, drop, etc.).
+     *
+     * @param eventListener listener implementation, usually {@link GameController}
+     */
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
     }
 
+    /**
+     * Prepares the score label for binding. Currently only unbinds any
+     * existing binding; the score is updated explicitly via {@link #updateScore(int)}.
+     *
+     * @param integerProperty unused at the moment, kept for backward compatibility
+     */
     public void bindScore(IntegerProperty integerProperty) {
         if (scoreLabel != null) {
             scoreLabel.textProperty().unbind();
         }
     }
 
+    /**
+     * Called when the game has reached a terminal state.
+     * <p>
+     * Stops the timeline, shows the game-over panel and prompts the
+     * player for a name before saving to the leaderboard
+     */
     public void gameOver() {
         System.out.println("GAME OVER CALLED");
 
@@ -519,7 +619,6 @@ public class GuiController implements Initializable {
             LeaderboardManager.saveScore(filename, name, gameController.getScore());
 
             showLeaderboard();
-
             showGameOverMenu();
         });
     }
@@ -542,10 +641,21 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Resets the game state and restarts the main timeline.
+     * Also clears the hold panel and hides the in-game menu.
+     *
+     * @param actionEvent optional event (ignored)
+     */
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
         gameOverPanel.setVisible(false);
         eventListener.createNewGame();
+
+        // CLose the menu when restarting
+        if (menuOverlay != null) {
+            menuOverlay.setVisible(false);
+        }
 
         holdPanel.getChildren().clear();
 
@@ -557,11 +667,23 @@ public class GuiController implements Initializable {
         gameController.createNewGame();
     }
 
+    /**
+     * Called by {@link GameController} after construction so that the  GUI
+     * can access game-specific data (score, leaderboard mode, etc.).
+     *
+     * @param controller active game controller
+     */
     public void setGameController(GameController controller) {
         this.gameController = controller;
         Platform.runLater(() -> gamePanel.requestFocus());
     }
 
+    /**
+     * Binds the remaining time to the timer label and changes its colour
+     * when the time is running low.
+     *
+     * @param timeRemaining property representing remaining seconds
+     */
     public void bindTime(IntegerProperty timeRemaining) {
         if (timerLabel != null && timeRemaining != null) {
             timerLabel.textProperty().bind(timeRemaining.asString("Time: %d"));
@@ -578,6 +700,7 @@ public class GuiController implements Initializable {
         }
     }
 
+    // Menu + Navigation
     @FXML
     private void openMenu() {
         isPause.set(true);
@@ -613,18 +736,29 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Updates the score label text if it is present
+     *
+     * @param score current numeric score
+     */
     public void updateScore(int score) {
         if (scoreLabel != null) {
             scoreLabel.setText("Score: " + score);
         }
     }
 
+    /**
+     * Makes the timer label visible for timed game modes.
+     */
     public void enableTimerDisplay() {
         if (timerLabel != null) {
             timerLabel.setVisible(true);
         }
     }
 
+    /**
+     * Opens the leaderboard window for the current game mode.
+     */
     @FXML
     private void openLeaderboard() {
         try {

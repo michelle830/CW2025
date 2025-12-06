@@ -1,25 +1,42 @@
-/**
- * Represents a movement request in the game
- *
- * A MoveEvent contains:
- * - The type of movement (LEFT, RIGHT, ROTATE, DOWN)
- * - The source of the movement  (USER key press of THREAD timer)
- *
- * This pbject is created by GuiContorller and processed by GameController
- *
- * Refactored for COMP2042 to improve clarity and documentation
- */
 package com.comp2042;
 
+/**
+ * Represents a single movement request in this game.
+ *
+ * <p>A {@code MoveEvent} contains:</p>
+ * <ul>
+ *     <li>The type of movement (LEFT, RIGHT, ROTATE, DOWN)</li>
+ *     <li>The source of the event (USER input or THREAD timer)</li>
+ * </ul>
+ *
+ * <p>
+ * These events are typically created by {@link GuiController} and then
+ * processed by {@link GameController}.
+ *
+ * Refactored for COMP2042 to:
+ * <ul>
+ *     <li>Fix documentation errors</li>
+ *     <li>Add Javadoc for enums</li>
+ *     <li>Ensure immutability and clarity</li>
+ * </ul>
+ *
+ * @author Chan Michelle
+ * @version 1.0
+ */
+
 public final class MoveEvent {
+
+    /** The kind of movement requested. */
     private final EventType eventType;
+
+    /** The origin of the request (user key press or time tick). */
     private final EventSource eventSource;
 
     /**
      * Constructs a MoveEvent
      *
-     * @param eventType type of movement(LEFT, RIGHT, DOWN, ROTATE)
-     * @param eventSource source of the event (USER or THREAD)
+     * @param eventType   Type of movement
+     * @param eventSource Source of the movement
      */
 
     public MoveEvent(EventType eventType, EventSource eventSource) {
@@ -32,7 +49,7 @@ public final class MoveEvent {
         return eventType;
     }
 
-    /** @return whether the event came from the user or game timer*/
+    /** @return The source of the event*/
     public EventSource getEventSource() {
         return eventSource;
     }
