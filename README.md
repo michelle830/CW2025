@@ -3,6 +3,7 @@
 
 **Author:** Chan Michelle  
 **Academic Year:** 2025 / 2026
+**GitHub Repository:** https://github.com/michelle830/CW2025.git
 
 ---
 
@@ -79,9 +80,54 @@ The main objectives are to:
 
 ---
 
-## 3. Refactoring Summary
+## 3. Implemented But Not Working Properly
 
-### 3.1 Structural Improvements (MVC)
+All implemented features are currently working as intended.   
+**No partially-working features remain.**
+
+## 4. Features Not Implemented
+All planned feature listed in the proposal and specification were successfully implemented.
+**No outstanding items remain.**
+
+## 5. New Java Classes Added
+* **Theme** - stores theme metadata (name, type, value)
+* **ThemeManager** - handles theme switching + retrieval
+* **NotificationPanel** - shows short UI notifications
+* **MoveEvent** - abstraction for movement input
+*  **NextShapeInfo** -stores rotation preview data
+*  **LeaderboardManager** - saves, loads, sorts leaderboard scores
+*  **ViewData** - encapsulates game state for the GUI
+*  **MatrixOperations** - matrix utilities for merge, copy, row clearing
+
+---
+
+## 6. Modified Java Classes
+* **SimpleBoard** - collision, spawning, ghost logic, refactored movement
+* **BrickRotator** - simplified, corrected rotation logic
+* **GameController** - timer logic, new game modes, pause system, hard drop
+* **GuiController** - HUD drawing, panel overlays, menu handling
+* **Score** - centralised scoring rules
+* **ClearRow** - row-clear data and scoring integration
+* **Brick subclasses** - rotation and shape corrections
+
+--- 
+
+## 7.Unexpected Problems Encountered
+* Hard drop initially caused disappearing bricks (spawn + merge fix required)
+* Board matrix dimensions were incorrectly aligned (height  vs width)
+* Ghost piece offset by one row
+* Pause menu allowed brick movement until Timeline fix
+* Leaderboard file paths inconsistent in IntelliJ
+* JavaFX layering caused ghost piece to overlap incorrectly
+
+These issues were **resolved** during refactoring.
+
+---
+
+
+## 8. Refactoring Summary
+
+### 8.1 Structural Improvements (MVC)
 
 Codebase was reorganised to better follow an **MVC-style structure**:
 
@@ -118,7 +164,7 @@ Codebase was reorganised to better follow an **MVC-style structure**:
 
 ---
 
-### 3.2 Readability Enhancements
+### 8.2 Readability Enhancements
 - Clear method responsibilities and more descriptive naming
 - Many long or complex methods broken into smaller helpers
 - **Full Javadoc coverage** on the main classes:
@@ -128,7 +174,7 @@ Codebase was reorganised to better follow an **MVC-style structure**:
 
 ---
 
-### 3.3 Performance & Stability Fixes
+### 8.3 Performance & Stability Fixes
 - Fixed brick spawn alignment for pieces at the top of the board
 - Fixed ghost piece Y-offset to match actual landing position
 - Fixed hold-brick reset behaviour when starting a new game
@@ -140,20 +186,19 @@ Codebase was reorganised to better follow an **MVC-style structure**:
   
 ---
 
-## 4. How to Run the Project
+## 9. How to Run the Project
 
-
-### 4.1 Requirements
+### 9.1 Requirements
 - Java **17** or **Java 21**
 - **Maven**
 - JavaFX SDK - handled automatically via the Maven JavaFX plugin in `pom.xml`
 
-### 4.2 Run via Maven
+### 9.2 Run via Maven
 ```bash
 mvn clean javafx:run
 ```
 
-### Run in IntelliJ
+### 9.3 Run in IntelliJ
 1. Open project
 2. Let Maven load dependencies
 3. Run `Main.java`
@@ -161,7 +206,7 @@ mvn clean javafx:run
 
 ---
 
-## 5. Javadoc Documentation
+## 10. Javadoc Documentation
 
 Generate full documentation with:
 
@@ -173,16 +218,11 @@ Output folder:
 ```
 target/site/apidocs/index.html
 ```
-
-Javadoc includes:
-- Class descriptions
-- Method parameter and return 
-- MVC relationships
-- Behaviour descriptions
+A complete HTML copy is provided in the project.
 
 ---
 
-## 6. JUnit Testing
+## 11. JUnit Testing
 
 Automated tests were written for all non-JavaFX logic.
 
@@ -201,51 +241,52 @@ Automated tests were written for all non-JavaFX logic.
 ```bash
 mvn test
 ```
-
 ---
 
-## 7. UML Class Diagram
+## 12. UML Class Diagram
 
 A complete UML class diagram is included:
 
 ```
-tetris-class-diagram.png
+Design.pdf
 ```
 
 Diagram covers:
-- MVC layout
-- Game logic flow
+- MVC structure
 - Brick hierarchy
-- All class relationships
+- Controller and UI components
+- Theme and leaderboard subsystems
+- Associations, implements arrows, multiplicity
 
 ---
 
-## 8. Git Usage Summary
+## 13. Git Usage Summary
 
-- Frequent commits
-- Clear commit messages
-- Proper branching workflow
-- Github used as remote version control
+- Used feature branches for development
+- Frequent commits with meaningful messages
+- Clean commit history
+- Synced regularly with GitHub repository
 
 ---
 
-## 9. Video Demonstration
+## 14. Video Demonstration
 
-Submitted video:
+File:
 
 ```
-COMP2042-Video-Demo-Michelle.mp4
+Demo.mp4
 ```
-Includes:
-- Explanation of refactoring 
-- Feature demonstrations
-- Before & After comparison
-- JUnit + Javadoc demonstration
+This video includes:
+- Overview of refactoring work
+- Demonstration of new features
 - Gameplay showcase
+- JUnit test output
+- Javadoc demonstration
+- Two highlighted achivements
 
 ---
 
-## 10. Conclusion
+## 15. Conclusion
 
 This coursework demonstrates:
 
@@ -260,7 +301,7 @@ The final Tetris game is more modular, stable, readable, and enjoyable than the 
 
 ---
 
-## 11. Acknowledgements
+## 16. Acknowledgements
 
 - JavaFX Official Documentation
 - COMP2042 Lecture Notes
